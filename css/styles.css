@@ -292,3 +292,8 @@ body[data-peek="1"] .fullmap .leaflet-top.leaflet-left{display:none}
 /* ---------- pie ---------- */
 .foot{padding:40px 16px 30px;text-align:center;color:var(--gris);font-size:13px}
 .foot .linkish{color:var(--selva)}
+
+/* iPhone (Safari): el campo de fecha no se encoge solo y se monta sobre el de al lado */
+.grid2 > div{min-width:0}
+input[type="date"].in{-webkit-appearance:none;appearance:none;display:block;min-width:0;max-width:100%;min-height:50px;text-align:left}
+input[type="date"].in::-webkit-date-and-time-value{text-align:left}
