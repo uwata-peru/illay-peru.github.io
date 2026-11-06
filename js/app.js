@@ -15,6 +15,7 @@
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   function rng(seed) { let a = seed >>> 0; return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
   function km(a, b) {
+    if (b.lat == null) return null;
     const R = 6371, r = x => x * Math.PI / 180;
     const dLat = r(b.lat - a.lat), dLng = r(b.lng - a.lng);
     const h = Math.sin(dLat / 2) ** 2 + Math.cos(r(a.lat)) * Math.cos(r(b.lat)) * Math.sin(dLng / 2) ** 2;
@@ -25,11 +26,9 @@
   const params = new URLSearchParams(location.search);
   const S = {
     lang: store.get('illay.lang', 'es'),
-    tab: 'map', detail: null, sel: null,
-    layer: 'map',
+    tab: 'home', detail: null, sel: null, layer: 'map', mapOpen: false,
     treeCode: (params.get('arbol') || store.get('illay.tree', '') || '').toUpperCase(),
-    treeError: false,
-    openLegend: {}
+    treeError: false, openLegend: {}
   };
   if (!TT[S.lang]) S.lang = 'es';
   const t = k => (TT[S.lang] && TT[S.lang][k] !== undefined ? TT[S.lang][k] : TT.es[k]);
@@ -37,8 +36,8 @@
   const money = n => `${D.config.moneda} ${n}`;
   const fmtDate = d => d.toLocaleDateString({ es: 'es-PE', en: 'en-US', fr: 'fr-FR' }[S.lang], { day: 'numeric', month: 'short', year: 'numeric' });
   const byId = id => D.comunidades.find(c => c.id === id);
+  const onMap = () => D.comunidades.filter(c => c.lat != null);
   const waLink = text => `https://wa.me/${D.config.whatsapp}?text=${encodeURIComponent(text)}`;
-  const isDesk = () => window.matchMedia('(min-width:980px)').matches;
 
   /* ---------------- ilustraciones (en lugar de fotos) ---------------- */
   let gid = 0;
@@ -90,10 +89,15 @@
 
   /* ---------------- iconos ---------------- */
   const IC = {
-    map: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>',
+    home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>',
     list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 20h18M5 20V10l4-3 4 3v10M13 20v-6h6v6M8 13h2"/></svg>',
     legends: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19.5A2 2 0 0 0 6 21.5h13"/><path d="M10 8l4 2.5-4 2.5z"/></svg>',
     tree: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21v-9"/><path d="M12 12c0-4 3-7 8-7 0 5-3 8-8 7z"/><path d="M12 14c0-3-2-5-7-5 0 4 3 6 7 5z"/></svg>',
+    map: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>',
+    down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg>',
+    pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>',
+    clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+    river: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8c3-2 6 2 9 0s6-2 9 0M3 14c3-2 6 2 9 0s6-2 9 0"/></svg>',
     play: '<svg viewBox="0 0 16 16" fill="#fff"><path d="M4 2.5v11l9-5.5z"/></svg>',
     stop: '<svg viewBox="0 0 16 16" fill="#fff"><rect x="3.5" y="3.5" width="9" height="9" rx="1.5"/></svg>',
     wa: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.4.1-.2 0-.3 0-.5l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.2c0-.2-.2-.2-.4-.3z"/></svg>'
@@ -108,7 +112,7 @@
     synth.cancel();
     const u = new SpeechSynthesisUtterance(text);
     u.lang = { es: 'es-PE', en: 'en-US', fr: 'fr-FR' }[S.lang];
-    u.rate = 0.95;
+    u.rate = 0.92;
     u.onend = u.onerror = () => { if (speakingId === id) { speakingId = null; markPlaying(); } };
     speakingId = id; markPlaying();
     synth.speak(u);
@@ -123,149 +127,170 @@
     });
   }
 
-  /* ---------------- mapa ---------------- */
-  let map, cluster, layers, markers = {}, iqMarker;
-  function pinHTML(c) {
-    return `<div class="wrap"><span class="ph">${scene(c.seed, c.escena)}</span><span class="tip"></span><span class="lbl">${esc(c.nombre)}</span></div>`;
-  }
-  function initMap() {
-    if (!window.L) return;
-    const Lf = window.L;
-    map = Lf.map('map', { zoomControl: true, attributionControl: true, minZoom: 5, maxZoom: 17, worldCopyJump: false });
-    layers = {
-      map: Lf.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' }),
-      sat: Lf.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 18, attribution: 'Imágenes &copy; Esri' })
-    };
-    layers[S.layer].addTo(map);
-
-    cluster = Lf.markerClusterGroup({
-      maxClusterRadius: 90,
-      showCoverageOnHover: false,
-      spiderfyOnMaxZoom: true,
+  /* ---------------- mapas ---------------- */
+  const tiles = {
+    map: () => window.L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' }),
+    sat: () => window.L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 18, attribution: 'Imágenes &copy; Esri' })
+  };
+  const pinHTML = c => `<div class="wrapp"><span class="ph">${scene(c.seed, c.escena)}</span><span class="tip"></span><span class="lbl">${esc(c.nombre)}</span></div>`;
+  function addMarkers(map, onClick) {
+    const Lf = window.L, markers = {};
+    const cluster = Lf.markerClusterGroup({
+      maxClusterRadius: 80, showCoverageOnHover: false, spiderfyOnMaxZoom: true,
       iconCreateFunction: cl => Lf.divIcon({ className: 'cluster', iconSize: [0, 0], iconAnchor: [0, 0], html: `<div><b>${cl.getChildCount()}</b> ${esc(t('communities'))}</div>` })
     });
-    D.comunidades.forEach(c => {
-      const m = Lf.marker([c.lat, c.lng], { icon: Lf.divIcon({ className: 'pin', iconSize: [0, 0], iconAnchor: [0, 0], html: pinHTML(c) }), title: c.nombre, keyboard: true });
-      m.on('click', () => selectCommunity(c.id));
-      markers[c.id] = m;
-      cluster.addLayer(m);
+    onMap().forEach(c => {
+      const m = Lf.marker([c.lat, c.lng], { icon: Lf.divIcon({ className: 'pin', iconSize: [0, 0], iconAnchor: [0, 0], html: pinHTML(c) }), title: c.nombre });
+      if (onClick) m.on('click', () => onClick(c.id));
+      markers[c.id] = m; cluster.addLayer(m);
     });
     map.addLayer(cluster);
-
-    iqMarker = Lf.marker([D.iquitos.lat, D.iquitos.lng], {
-      zIndexOffset: -500, title: 'Iquitos',
-      icon: Lf.divIcon({ className: 'pin city', iconSize: [0, 0], iconAnchor: [0, 0], html: `<div class="wrap"><span class="ph">${scene(0, 'city')}</span><span class="tip"></span><span class="lbl">Iquitos</span></div>` })
-    }).addTo(map);
-    iqMarker.on('click', () => selectCommunity('iquitos'));
-
-    fitAll();
+    const iq = Lf.marker([D.iquitos.lat, D.iquitos.lng], { zIndexOffset: -500, title: 'Iquitos', icon: Lf.divIcon({ className: 'pin city', iconSize: [0, 0], iconAnchor: [0, 0], html: `<div class="wrapp"><span class="ph">${scene(0, 'city')}</span><span class="tip"></span><span class="lbl">Iquitos</span></div>` }) }).addTo(map);
+    if (onClick) iq.on('click', () => onClick('iquitos'));
+    return { cluster, markers, iq };
   }
-  function fitAll() {
-    if (!map) return;
-    const pts = D.comunidades.map(c => [c.lat, c.lng]).concat([[D.iquitos.lat, D.iquitos.lng]]);
-    map.fitBounds(window.L.latLngBounds(pts), { padding: [70, 70] });
+
+  // Mapa pequeño de la portada (solo para mirar; se toca para abrir el completo)
+  let preview = null;
+  function initPreview() {
+    if (preview) { preview.remove(); preview = null; }
+    const el = document.getElementById('mapPreview');
+    if (!el || !window.L) return;
+    preview = window.L.map(el, { zoomControl: false, attributionControl: true, dragging: false, touchZoom: false, scrollWheelZoom: false, doubleClickZoom: false, boxZoom: false, keyboard: false, tap: false });
+    tiles.map().addTo(preview);
+    addMarkers(preview, null);
+    preview.fitBounds(D.config.vistaInicial);
+  }
+
+  // Mapa completo
+  let full = null, fullLayers = null, fullM = null;
+  function initFull() {
+    if (full || !window.L) return;
+    full = window.L.map('mapFull', { zoomControl: true, attributionControl: true, minZoom: 3, maxZoom: 18 });
+    fullLayers = { map: tiles.map(), sat: tiles.sat() };
+    fullLayers[S.layer].addTo(full);
+    fullM = addMarkers(full, id => selectPlace(id));
+    full.fitBounds(D.config.vistaInicial);
   }
   function setLayer(k) {
-    if (!map || k === S.layer) return;
-    map.removeLayer(layers[S.layer]); layers[k].addTo(map); S.layer = k;
+    if (!full || k === S.layer) return;
+    full.removeLayer(fullLayers[S.layer]); fullLayers[k].addTo(full); S.layer = k;
     document.querySelectorAll('[data-layer]').forEach(b => b.setAttribute('aria-pressed', b.dataset.layer === k));
   }
-  function markActive() {
-    Object.entries(markers).forEach(([id, m]) => { const el = m.getElement(); if (el) el.classList.toggle('active', id === S.sel); });
-    const el = iqMarker && iqMarker.getElement(); if (el) el.classList.toggle('active', S.sel === 'iquitos');
+  function openMap(focusId) {
+    const fm = document.getElementById('fullmap');
+    if (!S.mapOpen) { history.pushState({ map: true }, '', `${location.pathname}${location.search}#mapa`); }
+    S.mapOpen = true; fm.hidden = false; stopSpeech();
+    initFull();
+    setTimeout(() => {
+      if (!full) return;
+      full.invalidateSize();
+      if (focusId) selectPlace(focusId); else { S.sel = null; renderPeek(); }
+    }, 30);
   }
-  function selectCommunity(id, fly) {
+  function hideMap() { S.mapOpen = false; document.getElementById('fullmap').hidden = true; S.sel = null; renderPeek(); }
+  function closeMap() { if (location.hash === '#mapa') history.back(); else { hideMap(); syncHash(); } }
+  function markActive() {
+    if (!fullM) return;
+    Object.entries(fullM.markers).forEach(([id, m]) => { const el = m.getElement(); if (el) el.classList.toggle('active', id === S.sel); });
+  }
+  function selectPlace(id) {
     S.sel = id;
-    if (map && fly !== false) {
-      if (id === 'iquitos') map.flyTo([D.iquitos.lat, D.iquitos.lng], Math.max(map.getZoom(), 10), { duration: .6 });
-      else { const m = markers[id]; cluster.zoomToShowLayer(m, () => { map.flyTo(m.getLatLng(), Math.max(map.getZoom(), 10), { duration: .6 }); }); }
-    }
-    renderPeek(); markActive();
+    if (id === 'iquitos') full.flyTo([D.iquitos.lat, D.iquitos.lng], Math.max(full.getZoom(), 9), { duration: .6 });
+    else if (fullM.markers[id]) { const m = fullM.markers[id]; fullM.cluster.zoomToShowLayer(m, () => full.flyTo(m.getLatLng(), Math.max(full.getZoom(), 9), { duration: .6 })); }
+    renderPeek(); setTimeout(markActive, 700);
   }
   function renderPeek() {
     const pk = document.getElementById('peek');
-    if (!S.sel) { pk.hidden = true; document.body.dataset.peek = '0'; return; }
+    if (!S.sel || !S.mapOpen) { pk.hidden = true; document.body.dataset.peek = '0'; return; }
     let html;
     if (S.sel === 'iquitos') {
       html = `<div class="thumb">${scene(2, 'city')}</div><div><h3>${t('iqTitle')}</h3><p>${t('iqText')}</p></div>`;
     } else {
-      const c = byId(S.sel);
-      html = `<div class="thumb">${scene(c.seed, c.escena)}</div><div><h3>${esc(c.nombre)}</h3><div class="tags" style="margin:2px 0 4px">${tagsFor(c)}</div><p>${esc(L(c.lema))}</p><p style="font-weight:600;color:var(--tinta);margin-top:2px">≈ ${km(D.iquitos, c)} km · ${esc(L(c.rio))}</p><div class="row" style="margin-top:8px"><button class="btn sm pink" data-open="${c.id}">${t('see')}</button></div></div>`;
+      const c = byId(S.sel), d = km(D.iquitos, c);
+      html = `<div class="thumb">${scene(c.seed, c.escena)}</div><div><h3>${esc(c.nombre)}</h3><p>${esc(L(c.lema))}</p><p style="font-weight:600;color:var(--tinta);margin-top:2px">${d ? `≈ ${d} km · ` : ''}${esc(L(c.rio))}</p><div class="row" style="margin-top:8px"><button class="btn sm pink" data-open="${c.id}">${t('see')}</button></div></div>`;
     }
     pk.innerHTML = html + `<button class="x" data-act="closepeek" aria-label="${t('close')}">×</button>`;
     pk.hidden = false; document.body.dataset.peek = '1';
   }
-  function tagsFor(c) {
-    let s = c.real ? `<span class="tag real">${t('real')}</span>` : `<span class="tag">${t('ex')}</span>`;
-    if (c.ubicacionAproximada) s += ` <span class="tag soft">${t('approx')}</span>`;
-    return s;
+
+  /* ---------------- piezas ---------------- */
+  function tagFor(c, glass) {
+    if (c.real) return `<span class="tag ${glass ? 'glass' : 'real'}">${t('real')}</span>${c.lat == null ? ` <span class="tag ${glass ? 'glass' : 'soft'}">${t('noMap')}</span>` : ''}`;
+    return `<span class="tag ${glass ? 'glass' : ''}">${t('ex')}</span>`;
   }
+  function pcard(c) {
+    const d = km(D.iquitos, c);
+    return `<button class="pcard" data-open="${c.id}"><span class="img">${scene(c.seed + 10, c.escena)}</span><span class="grad"></span><span class="tags">${tagFor(c, true)}</span><span class="tx"><h3>${esc(c.nombre)}</h3><small>${esc(L(c.rio))}${d ? ` · ≈ ${d} km` : ''}</small></span></button>`;
+  }
+  function legendCard(c, key, full) {
+    const lg = D.leyendas[c.leyenda]; if (!lg) return '';
+    const open = !!S.openLegend[key];
+    return `<article class="legend">
+      <span class="free">${t('free')}</span>
+      <h3>${esc(L(lg.titulo))}</h3>
+      <p class="hook">${esc(L(lg.gancho))}</p>
+      <p class="who">${esc(c.nombre)}</p>
+      <div class="acts"><button class="play" data-speak="${key}" data-text="${esc(L(lg.texto))}" data-label="${t('listen')}"><span class="c">${IC.play}</span><span class="lb">${t('listen')}</span><span class="wave"><i></i><i></i><i></i><i></i><i></i></span></button>
+      ${full ? `<button class="linkbtn" data-legend="${key}">${open ? t('hide') : t('read')}</button>` : ''}</div>
+      ${full && open ? `<p class="txt">${esc(L(lg.texto))}</p><p class="who" style="text-transform:none;letter-spacing:0">${t('voiceNote')}</p>` : ''}
+    </article>`;
+  }
+  const lockedRow = (icon, title, sub) => `<div class="locked"><span class="lk">${icon}</span><span><b>${title}</b><small>${sub}</small></span><span class="tag">${t('soon')}</span></div>`;
+  const footer = (about) => `<footer class="foot">Illay · Loreto, Perú${about ? ` · <button class="linkish" data-act="about">${t('about')}</button>` : ''}</footer>`;
 
   /* ---------------- vistas ---------------- */
-  function vMapPanel() {
-    // En compu: panel con la lista junto al mapa
-    return `<div class="pad"><h1 class="title">${t('mapTitle')}</h1><p class="sub">${t('mapSub')}</p>
-      <div class="card-list">${communityCards()}</div>
-      <div class="tipbox" style="margin-top:16px"><b>${t('iqTitle')}</b><p style="margin-top:4px">${t('iqText')}</p></div></div>`;
-  }
-  function communityCards() {
-    return D.comunidades.map(c => `<button class="card" data-open="${c.id}"><div class="img">${scene(c.seed, c.escena)}</div><div class="tx"><h3>${esc(c.nombre)}</h3><div class="tags">${tagsFor(c)}</div><p>${esc(L(c.lema))}</p><div class="meta"><span>📍 ≈ ${km(D.iquitos, c)} km</span><span>🌊 ${esc(L(c.rio))}</span></div></div></button>`).join('');
+  function vHome() {
+    const uniq = []; const seen = {};
+    D.comunidades.forEach(c => { if (D.leyendas[c.leyenda] && !seen[c.leyenda]) { seen[c.leyenda] = 1; uniq.push(c); } });
+    return `<section class="hero"><canvas id="heroCanvas" aria-hidden="true"></canvas><div class="shade"></div>
+        <div class="copy"><span class="kicker">${t('heroKicker')}</span><h1>${t('heroTitle')}</h1><p class="sub">${t('heroSub')}</p>
+        <button class="btn pink" data-act="explore">${t('explore')} ${IC.down}</button></div></section>
+      <div class="wrap">
+        <section class="sec" id="secMap"><span class="kicker">${t('mapKicker')}</span><h2 class="sec-title">${t('mapTitle')}</h2>
+          <div class="map-card"><div id="mapPreview"></div><button class="cover" data-act="openmap" aria-label="${t('fullMap')}"><span class="btn pink">${IC.map} ${t('fullMap')}</span></button></div></section>
+        <section class="sec"><div class="row" style="justify-content:space-between;align-items:flex-end"><div><span class="kicker">${t('commKicker')}</span><h2 class="sec-title" style="margin-bottom:12px">${t('commTitle')}</h2></div><button class="btn ghost sm" data-tab="list" style="margin-bottom:16px">${t('seeAll')}</button></div>
+          <div class="carousel">${D.comunidades.map(pcard).join('')}</div></section>
+        <section class="sec"><div class="band"><div><span class="kicker">${t('treeKicker')}</span><h2 style="margin-top:6px">${t('treeTitleHome')}</h2></div>
+          <div class="steps3">${[['how1', 2], ['how2', 4], ['how3', 6]].map(([k, st], i) => `<div class="st"><span class="ill">${sprout(st, 20 + i)}</span><b>${t(k)}</b></div>`).join('')}</div>
+          <div><button class="btn light" data-tab="tree">${t('tabTree')} →</button></div></div></section>
+        <section class="sec"><span class="kicker">${t('legKicker')}</span><h2 class="sec-title">${t('legTitleHome')}</h2>
+          <div class="lg-grid">${uniq.slice(0, 3).map(c => legendCard(c, 'H-' + c.id, false)).join('')}</div>
+          <div style="margin-top:14px"><button class="btn ghost" data-tab="legends">${t('tabLegends')} →</button></div></section>
+      </div>${footer(true)}`;
   }
   function vList() {
-    return `<div class="pad"><h1 class="title">${t('tabList')}</h1><p class="sub">${t('mapSub')}</p>
-      <div class="card-list">${communityCards()}</div>
-      <div class="tipbox" style="margin-top:16px"><b>${t('iqTitle')}</b><p style="margin-top:4px">${t('iqText')}</p><ul>${t('iqTips').map(x => `<li>${esc(x)}</li>`).join('')}</ul></div></div>`;
-  }
-  function legendCard(c, idPrefix) {
-    const lg = D.leyendas[c.leyenda]; if (!lg) return '';
-    const key = idPrefix + c.id, open = !!S.openLegend[key];
-    return `<div class="legend">
-      <span class="free">🎁 ${t('freeLegend')}</span>
-      <h3>${esc(L(lg.titulo))}</h3>
-      <p class="who">${esc(c.nombre)} · ${t('sampleVersion')}</p>
-      <button class="play" data-speak="${key}" data-text="${esc(L(lg.texto))}" data-label="${t('listen')}"><span class="c">${IC.play}</span><span class="lb">${t('listen')}</span><span class="wave"><i></i><i></i><i></i><i></i><i></i></span></button>
-      <p class="txt ${open ? '' : 'clamp'}">${esc(L(lg.texto))}</p>
-      <button class="more" data-legend="${key}">${open ? t('readLess') : t('readMore')}</button>
-      <p class="note" style="color:#b9d2c3">${t('voiceNote')}</p>
-    </div>`;
-  }
-  function lockedItems(c) {
-    return `<div class="locked"><span class="lk">🎧</span><span><b>${t('fullCollection')}${c ? ' · ' + esc(c.nombre) : ''}</b><small>${t('fullCollectionTx')}</small></span><span class="tag">${t('soon')}</span></div>`;
-  }
-  function bookItem() {
-    return `<div class="locked"><span class="lk">📖</span><span><b>${t('printedBook')}</b><small>${t('printedBookTx')}</small></span><span class="tag">${t('soon')}</span></div>`;
+    return `<div class="wrap"><div class="page-head"><span class="kicker">${t('commKicker')}</span><h1>${t('commTitle')}</h1></div>
+      <div class="grid-cards" style="margin-top:16px">${D.comunidades.map(pcard).join('')}</div>
+      <div style="margin-top:18px"><button class="btn pink" data-act="openmap">${IC.map} ${t('fullMap')}</button></div></div>${footer(true)}`;
   }
   function vLegends() {
-    return `<div class="pad"><h1 class="title">${t('legendsTitle')}</h1><p class="sub">${t('legendsSub')}</p>
-      <div style="margin-top:16px">${D.comunidades.map(c => `<div class="legend-block"><h2>${esc(c.nombre)}</h2>${legendCard(c, 'L-')}${lockedItems(c)}</div>`).join('')}</div>
-      ${bookItem()}</div>`;
+    const cs = D.comunidades.filter(c => D.leyendas[c.leyenda]);
+    return `<div class="wrap"><div class="page-head"><span class="kicker">${t('legKicker')}</span><h1>${t('legendsTitle')}</h1><p>${t('legendsSub')}</p></div>
+      <div class="lg-grid" style="margin-top:16px">${cs.map(c => legendCard(c, 'L-' + c.id, true)).join('')}</div>
+      <div style="display:grid;gap:10px;margin-top:18px">${lockedRow('🎧', t('fullCollection'), t('fullCollectionTx'))}${lockedRow('📖', t('printedBook'), t('printedBookTx'))}</div></div>${footer(true)}`;
   }
   function vDetail(id) {
     const c = byId(id); if (!c) return vList();
     const d = km(D.iquitos, c);
-    return `<div class="hero">${scene(c.seed + 20, c.escena)}<button class="back" data-back>← ${t('back')}</button><span class="cap">${t('illus')}</span></div>
-    <div class="dhead"><h2>${esc(c.nombre)}</h2><p class="lema">${esc(L(c.lema))}</p><div class="tags">${tagsFor(c)}${c.real ? ` <span class="tag">${t('exText')}</span>` : ''}</div></div>
-    <div class="pad" style="padding-top:0">
-      <div class="facts">
-        <div class="fact"><small class="k">${t('distance')}</small><b>≈ ${d} km</b><small>${t('straight')}</small></div>
-        <div class="fact"><small class="k">${t('time')}</small><b>${c.tiempo ? esc(L(c.tiempo)) : t('toConfirm')}</b><small>${esc(L(c.rio))}</small></div>
-      </div>
-      <div class="row"><button class="btn pink" data-request="${c.id}">${t('request')}</button><button class="btn ghost desk-only" data-fly="${c.id}">📍 ${t('seeOnMap')}</button><button class="btn ghost map-only" data-showmap="${c.id}">📍 ${t('seeOnMap')}</button></div>
-      <div class="sec"><h3>${t('what')}</h3><p>${esc(L(c.como))}</p></div>
-      <div class="sec"><h3>${t('special')}</h3><p>${esc(L(c.especial))}</p></div>
-      <div class="sec"><h3>${t('why')}</h3><ul class="list">${L(c.porQue).map((w, i) => `<li><span class="n">${i + 1}</span>${esc(w)}</li>`).join('')}</ul></div>
-      <div class="sec"><h3>${t('gallery')}</h3><div class="gal"><div>${scene(c.seed + 31, c.escena)}</div><div>${scene(c.seed + 32, 'forest')}</div><div>${scene(c.seed + 33, 'food')}</div></div></div>
-      <div class="sec"><h3>${t('how')}</h3><div class="route">${c.llegar.map(h => { const v = L(h); return `<div class="stop"><b>${esc(v[0])}</b>${v[1] ? `<span>${esc(v[1])}</span>` : ''}</div>`; }).join('')}</div>
-        <div class="tipbox" style="margin-top:12px"><b>${t('tips')}</b><ul>${t('iqTips').map(x => `<li>${esc(x)}</li>`).join('')}</ul></div></div>
-      <div class="sec"><h3>${t('exps')}</h3>${c.experiencias.map(e => `<div class="exp"><div><b>${esc(L(e.n))}</b><small>${esc(L(e.d))} · ${t('perPerson')}</small></div><span class="price">${money(e.p)}</span></div>`).join('')}
-        <button class="btn pink block" data-request="${c.id}" style="margin-top:6px">${t('request')}</button></div>
-      <div class="sec plant-cta"><h3>🌱 ${t('plantHere')}</h3><p>${t('plantHereTx')}</p>
-        <b style="font-size:14px;color:var(--selva)">${t('speciesHere')}</b>
-        <div class="sp-list">${c.especies.map((k, i) => { const sp = D.especies[k]; return `<div class="sp"><span class="ic2">${sprout(3, i * 3 + 5)}</span><span><b>${esc(sp.nombre)}</b><small>${esc(L(sp.desc))}</small></span></div>`; }).join('')}</div>
-        <button class="btn ghost" data-tab="tree" style="justify-self:start">${t('tabTree')} →</button></div>
-      <div class="sec"><h3>${t('tabLegends')}</h3>${legendCard(c, 'D-')}<div style="margin-top:10px">${lockedItems(c)}</div></div>
-      <div class="sec"><h3>${t('history')}</h3><p>${esc(L(c.historia))}</p></div>
-    </div>`;
+    const lg = D.leyendas[c.leyenda];
+    return `<section class="dhero">${scene(c.seed + 20, c.escena)}<div class="grad"></div><button class="back" data-back>← ${t('back')}</button><span class="cap">${t('illus')}</span>
+        <div class="copy"><div class="row" style="gap:6px">${tagFor(c, true)}</div><h1>${esc(c.nombre)}</h1><p class="lema">${esc(L(c.lema))}</p>
+        <div class="chips">${d ? `<span class="chip">${IC.pin}≈ ${d} km ${t('fromIq')}</span>` : ''}<span class="chip">${IC.clock}${c.tiempo ? esc(L(c.tiempo)) : t('toConfirm')}</span><span class="chip">${IC.river}${esc(L(c.rio))}</span></div></div></section>
+      <div class="wrap narrow">
+        <p class="lead">${esc(L(c.frase))}</p>
+        <div class="vibes">${L(c.porQue).map((w, i) => `<div class="vibe"><div class="ill">${scene(c.seed + 31 + i, i === 1 ? 'food' : (i === 2 ? 'forest' : c.escena))}</div><b>${esc(w)}</b></div>`).join('')}</div>
+        <section class="dsec"><h2>${t('exps')}</h2>${c.experiencias.map(e => `<div class="exp"><div><b>${esc(L(e.n))}</b><small>${esc(L(e.d))} · ${t('perPerson')}</small></div><span class="price">${money(e.p)}</span></div>`).join('')}</section>
+        <section class="dsec plant"><h2>${t('plantHere')}</h2><div class="sp-row">${c.especies.map((k, i) => `<span class="sp"><span class="ic2">${sprout(3, i * 3 + 5)}</span>${esc(D.especies[k].nombre)}</span>`).join('')}</div><div><button class="btn ghost sm" data-tab="tree">${t('tabTree')} →</button></div></section>
+        ${lg ? `<section class="dsec"><h2>${t('legKicker')}</h2>${legendCard(c, 'D-' + c.id, true)}</section>` : ''}
+        <section class="dsec">
+          <details class="more"><summary>${t('how')}</summary><div class="in"><div class="route">${c.llegar.map(h => { const v = L(h); return `<div class="stop"><b>${esc(v[0])}</b>${v[1] ? `<span>${esc(v[1])}</span>` : ''}</div>`; }).join('')}</div>
+            <p class="note" style="margin-top:12px"><b>${t('tips')}:</b> ${t('iqTips').map(esc).join(' · ')}</p></div></details>
+          ${c.historia ? `<details class="more"><summary>${t('history')}</summary><div class="in"><p>${esc(L(c.historia))}</p></div></details>` : ''}
+        </section>
+        ${c.lat != null ? `<div style="margin-top:16px"><button class="btn ghost" data-showmap="${c.id}">${IC.map} ${t('seeOnMap')}</button></div>` : ''}
+        <div class="sticky-cta"><button class="btn pink" data-request="${c.id}">${t('request')}</button></div>
+      </div>${footer(false)}`;
   }
 
   /* ---------------- mi árbol ---------------- */
@@ -281,53 +306,50 @@
     return { a, planted, ups, next: null };
   }
   function qrSVG(text) {
-    try {
-      const q = window.qrcode(0, 'M'); q.addData(text); q.make();
-      return q.createSvgTag({ cellSize: 4, margin: 2, scalable: true });
-    } catch (e) { return ''; }
+    try { const q = window.qrcode(0, 'M'); q.addData(text); q.make(); return q.createSvgTag({ cellSize: 4, margin: 2, scalable: true }); } catch (e) { return ''; }
   }
   function vTree() {
     const plans = D.planes.map(p => {
-      const base = D.planes[0].precio * p.meses, save = base - p.precio;
+      const save = D.planes[0].precio * p.meses - p.precio;
       return `<div class="plan"><small>${p.meses === 1 ? t('monthly') : `${p.meses} ${t('months')}`}</small><b>${money(p.precio)}</b>${save > 0 ? `<span class="sv">${t('save')} ${money(save)}</span>` : `<small>/ ${t('month')}</small>`}</div>`;
     }).join('');
-    const howBox = `<div class="sec"><h3>${t('howTitle')}</h3><div class="steps">
-        <div class="step"><span class="n">1</span><div><b>${t('how1')}</b><span>${t('how1t')}</span></div></div>
-        <div class="step"><span class="n">2</span><div><b>${t('how2')}</b><span>${t('how2t')}</span></div></div>
-        <div class="step"><span class="n">3</span><div><b>${t('how3')}</b><span>${t('how3t')}</span></div></div></div></div>
-      <div class="sec"><h3>${t('plans')}</h3><div class="plans">${plans}</div><p class="note" style="margin-top:8px">${t('plansNote')}</p></div>
-      <div class="sec box"><h3 style="font-size:17px;margin-bottom:10px">${t('rulesTitle')}</h3><div class="rules"><div><span class="em">🤝</span><span>${t('rule1')}</span></div><div><span class="em">🌧️</span><span>${t('rule2')}</span></div></div></div>`;
-
+    const howBand = `<section class="sec"><div class="band"><h2>${t('treeTitleHome')}</h2>
+        <div class="steps3">${[['how1', 'how1t', 2], ['how2', 'how2t', 4], ['how3', 'how3t', 6]].map(([k, kt, st], i) => `<div class="st"><span class="ill">${sprout(st, 20 + i)}</span><div><b>${t(k)}</b><p style="font-size:14px;color:#cfe0d2;margin-top:2px">${t(kt)}</p></div></div>`).join('')}</div></div></section>
+      <section class="sec" style="padding-top:28px"><h2 class="sec-title" style="font-size:26px">${t('plans')}</h2><div class="plans">${plans}</div><p class="note" style="margin-top:8px">${t('plansNote')}</p>
+        <div class="facts2" style="margin-top:14px"><div><span>🤝</span><span>${t('rule1')}</span></div><div><span>🌧️</span><span>${t('rule2')}</span></div></div></section>`;
     const td = S.treeCode && treeData(S.treeCode);
     if (!td) {
       const sample = Object.keys(D.arboles)[0];
-      return `<div class="pad"><h1 class="title">${t('treeTitle')}</h1><p class="sub">${t('treeSub')}</p>
-        <form class="box codebox" style="margin-top:14px" data-form="code">
+      return `<div class="wrap narrow"><div class="page-head" style="padding-left:16px;padding-right:16px"><span class="kicker">${t('treeKicker')}</span><h1>${t('treeTitle')}</h1><p>${t('treeSub')}</p></div>
+        <form class="box codebox" style="margin:14px 16px 0" data-form="code">
           <label class="fl" for="code" style="margin-top:0">${t('codeLabel')}</label>
           <input class="in code-in" id="code" autocomplete="off" placeholder="${t('codePh')}" value="${esc(S.treeError ? S.treeCode : '')}">
           ${S.treeError ? `<p class="warn" role="alert">${t('notFound')}</p>` : ''}
           <button class="btn pink block" type="submit">${t('see2')}</button>
-          <p class="note">${t('tryCode')}: <button type="button" class="linkish" data-code="${sample}">${sample}</button></p>
-        </form>${howBox}</div>`;
+          <p class="note">${t('tryCode')} <button type="button" class="linkish" data-code="${sample}">${sample}</button></p>
+        </form><div style="padding:0 16px">${howBand}</div></div>${footer(false)}`;
     }
     const a = td.a, c = byId(a.comunidad), sp = D.especies[a.especie], plan = D.planes.find(p => p.id === a.plan);
     const stage = Math.min(td.ups.length + 1, 7);
     const waText = t('waTree')(S.treeCode, a.nombre);
-    return `<div class="pad"><div class="row" style="justify-content:space-between"><h1 class="title">${t('treeTitle')}</h1><button class="linkish" data-act="logout">${t('logout')}</button></div>
-      <div class="tree-hero" style="margin-top:10px"><div class="top2"><div class="pv">${sprout(stage, 11)}</div><div><h2>${esc(a.nombre)}</h2><span class="code-tag">${esc(S.treeCode)}</span>${a.ejemplo ? ` <span class="tag">${t('ex')}</span>` : ''}${td.next ? `<div><span class="next">${t('nextUpdate')}: ${fmtDate(td.next)}</span></div>` : ''}</div></div>
+    return `<div class="wrap narrow"><div style="padding:24px 16px 0">
+      <div class="row" style="justify-content:space-between"><span class="kicker">${t('treeTitle')}</span><button class="linkish" data-act="logout">${t('logout')}</button></div>
+      <div class="tree-card" style="margin-top:10px"><div class="top2"><div class="pv">${sprout(stage, 11)}</div><div><h2>${esc(a.nombre)}</h2><span class="code-tag">${esc(S.treeCode)}</span>${td.next ? `<div><span class="next">${t('nextUpdate')}: ${fmtDate(td.next)}</span></div>` : ''}</div></div>
         <div class="kv"><div><small>${t('species')}</small><b>${esc(sp.nombre)}</b></div><div><small>${t('community')}</small><b>${esc(c.nombre)}</b></div><div><small>${t('caretaker')}</small><b>${esc(a.cuidador)}</b></div><div><small>${t('planted')}</small><b>${fmtDate(td.planted)}</b></div><div><small>${t('godparent')}</small><b>${esc(a.padrino)}</b></div><div><small>${t('plan')}</small><b>${plan ? (plan.meses === 1 ? t('monthly') : `${plan.meses} ${t('months')}`) : '—'}</b></div></div></div>
-      <div class="row" style="margin-top:12px"><a class="btn wa" href="${waLink(waText)}" target="_blank" rel="noopener">${IC.wa}${t('openWa')}</a><button class="btn ghost" data-showmap="${c.id}">📍 ${t('seeOnMap')}</button></div>
+      <div class="row" style="margin-top:12px"><a class="btn wa" href="${waLink(waText)}" target="_blank" rel="noopener">${IC.wa}${t('openWa')}</a>${c.lat != null ? `<button class="btn ghost" data-showmap="${c.id}">${IC.map} ${t('seeOnMap')}</button>` : ''}</div>
       ${D.config.whatsappEsEjemplo ? `<p class="note" style="margin-top:6px">${t('waExample')}</p>` : ''}
-      <div class="sec"><h3>${t('updates')}</h3><div class="tline">${td.ups.slice().reverse().map(u => `<div class="ev"><div class="evi">${sprout(Math.min(u.i + 1, 7), 11 + u.i)}</div><div><b>${t(u.k)}</b><small>${fmtDate(u.dt)} · ${u.h} ${t('heightCm')}</small><br>${u.i > 0 ? `<button class="mini-play" data-speak="T-${u.i}" data-text="${esc(t('careVoice')(a.nombre, u.h))}" data-label="${t('audioMsg')} ${esc(a.cuidador)}"><span class="c">${IC.play}</span><span class="lb">${t('audioMsg')} ${esc(a.cuidador)}</span></button>` : ''}</div></div>`).join('')}</div></div>
-      <div class="sec box"><h3 style="font-size:18px;margin-bottom:10px">${t('qrTitle')}</h3><div class="qr-card"><div class="qr">${qrSVG(waLink(waText))}</div><p style="font-size:14px;color:var(--gris)">${t('qrTx')}</p></div></div>
-      ${howBox}</div>`;
+      <section class="dsec"><h2>${t('updates')}</h2><div class="tline">${td.ups.slice().reverse().map(u => `<div class="ev"><div class="evi">${sprout(Math.min(u.i + 1, 7), 11 + u.i)}</div><div><b>${t(u.k)}</b><small>${fmtDate(u.dt)} · ${u.h} ${t('heightCm')}</small><br>${u.i > 0 ? `<button class="mini-play" data-speak="T-${u.i}" data-text="${esc(t('careVoice')(a.nombre, u.h))}" data-label="${t('audioMsg')} ${esc(a.cuidador)}"><span class="c">${IC.play}</span><span class="lb">${t('audioMsg')} ${esc(a.cuidador)}</span></button>` : ''}</div></div>`).join('')}</div></section>
+      <section class="dsec box"><h2 style="font-size:20px">${t('qrTitle')}</h2><div class="qr-card"><div class="qr">${qrSVG(waLink(waText))}</div><p style="font-size:14px;color:var(--gris)">${t('qrTx')}</p></div></section>
+      ${howBand}</div></div>${footer(false)}`;
   }
 
   /* ---------------- solicitar visita (WhatsApp) ---------------- */
+  const sheet = document.getElementById('sheet');
+  function sheetOpen(html) { sheet.innerHTML = `<div class="panel2">${html}</div>`; sheet.hidden = false; const f = sheet.querySelector('input,select,button'); if (f) f.focus(); }
+  function sheetClose() { sheet.hidden = true; sheet.innerHTML = ''; }
   function openRequest(id) {
-    const c = byId(id);
-    const today = new Date().toISOString().slice(0, 10);
-    sheetOpen(`<h2 style="font-size:24px">${t('reqTitle')} · ${esc(c.nombre)}</h2><p class="sub" style="margin-top:4px">${t('reqSub')}</p>
+    const c = byId(id), today = new Date().toISOString().slice(0, 10);
+    sheetOpen(`<h2 style="font-size:26px;color:var(--selva)">${t('reqTitle')}</h2><p style="color:var(--gris);margin-top:4px">${esc(c.nombre)} · ${t('reqSub')}</p>
       <form data-form="req" data-com="${c.id}">
         <div class="grid2"><div><label class="fl" for="rq-date">${t('date')}</label><input class="in" type="date" id="rq-date" min="${today}"></div>
         <div><label class="fl" for="rq-people">${t('people')}</label><input class="in" type="number" id="rq-people" min="1" max="20" value="2"></div></div>
@@ -347,84 +369,85 @@
     const err = form.querySelector('#rq-err');
     if (!date || !name) { err.textContent = t('needReq'); err.hidden = false; return; }
     const e = c.experiencias[+form.querySelector('#rq-exp').value];
-    const msg = t('waVisit')({ com: c.nombre, date, people: form.querySelector('#rq-people').value, exp: L(e.n), tree: form.querySelector('#rq-tree').checked, name });
-    window.open(waLink(msg), '_blank', 'noopener');
+    window.open(waLink(t('waVisit')({ com: c.nombre, date, people: form.querySelector('#rq-people').value, exp: L(e.n), tree: form.querySelector('#rq-tree').checked, name })), '_blank', 'noopener');
   }
-
-  /* ---------------- hoja ---------------- */
-  const sheet = document.getElementById('sheet');
-  function sheetOpen(html) { sheet.innerHTML = `<div class="panel2">${html}</div>`; sheet.hidden = false; const f = sheet.querySelector('input,select,button'); if (f) f.focus(); }
-  function sheetClose() { sheet.hidden = true; sheet.innerHTML = ''; }
   function openAbout() {
-    sheetOpen(`<h2 style="font-size:24px">${t('aboutTitle')}</h2><p style="margin-top:8px">${t('aboutTx')}</p><p class="tipbox" style="margin-top:12px">${t('aboutProto')}</p><button class="btn block" data-act="closesheet" style="margin-top:16px">${t('close')}</button>`);
+    sheetOpen(`<h2 style="font-size:26px;color:var(--selva)">${t('aboutTitle')}</h2><p style="margin-top:8px">${t('aboutTx')}</p><p class="note" style="margin-top:12px">${t('aboutNote')}</p><button class="btn block" data-act="closesheet" style="margin-top:16px">${t('close')}</button>`);
   }
 
   /* ---------------- render ---------------- */
   const panel = document.getElementById('panel');
   const tabsEl = document.getElementById('tabs');
-  function viewName() { return S.detail ? 'detail' : S.tab; }
+  let hero = null;
   function render(keepScroll) {
     stopSpeech();
     document.documentElement.lang = S.lang;
-    document.body.dataset.view = viewName();
+    document.body.dataset.view = S.detail ? 'detail' : S.tab;
     document.querySelectorAll('[data-lang]').forEach(b => b.setAttribute('aria-pressed', b.dataset.lang === S.lang));
     document.getElementById('loginTx').textContent = D.arboles[S.treeCode] ? t('tabTree') : t('login');
-    document.getElementById('protoBtn').textContent = t('proto');
-    document.getElementById('mapTitle').textContent = t('mapTitle');
-    document.getElementById('mapSub').textContent = t('mapSub');
+    document.getElementById('fmBack').textContent = t('closeMap');
     document.getElementById('lyMap').textContent = t('layerMap');
     document.getElementById('lySat').textContent = t('layerSat');
-    tabsEl.innerHTML = [['map', 'tabMap'], ['list', 'tabList'], ['legends', 'tabLegends'], ['tree', 'tabTree']]
+    tabsEl.innerHTML = [['home', 'tabHome'], ['list', 'tabList'], ['legends', 'tabLegends'], ['tree', 'tabTree']]
       .map(([k, lab]) => `<button data-tab="${k}" ${S.tab === k && !S.detail ? 'aria-current="page"' : ''}><span class="ic">${IC[k]}</span>${t(lab)}</button>`).join('');
     const y = panel.scrollTop;
-    if (S.detail) panel.innerHTML = vDetail(S.detail);
-    else panel.innerHTML = ({ map: vMapPanel, list: vList, legends: vLegends, tree: vTree })[S.tab]();
+    if (hero) { hero.destroy(); hero = null; }
+    if (preview) { preview.remove(); preview = null; }
+    panel.innerHTML = S.detail ? vDetail(S.detail) : ({ home: vHome, list: vList, legends: vLegends, tree: vTree })[S.tab]();
     panel.scrollTop = keepScroll ? y : 0;
-    renderPeek();
-    if (map) setTimeout(() => { map.invalidateSize(); markActive(); }, 0);
-    syncHash();
+    if (!S.detail && S.tab === 'home') {
+      const cv = document.getElementById('heroCanvas');
+      if (cv && window.IllayHero) { try { hero = window.IllayHero(cv); } catch (e) { console.error(e); } }
+      try { initPreview(); } catch (e) { console.error('mapa', e); }
+    }
+    if (full && fullM) fullM.cluster.refreshClusters();
+    if (!S.mapOpen) syncHash();
   }
 
-  /* hash para poder compartir links: #mapa, #comunidades, #leyendas, #mi-arbol, #comunidad-yanashi */
-  const H2T = { mapa: 'map', comunidades: 'list', leyendas: 'legends', 'mi-arbol': 'tree' };
-  const T2H = { map: 'mapa', list: 'comunidades', legends: 'leyendas', tree: 'mi-arbol' };
-  let hashLock = false;
+  /* hash para compartir links: #inicio, #comunidades, #leyendas, #mi-arbol, #comunidad-x, #mapa */
+  const H2T = { inicio: 'home', comunidades: 'list', leyendas: 'legends', 'mi-arbol': 'tree' };
+  const T2H = { home: 'inicio', list: 'comunidades', legends: 'leyendas', tree: 'mi-arbol' };
   function syncHash() {
     const h = S.detail ? `comunidad-${S.detail}` : T2H[S.tab];
-    if (location.hash.slice(1) !== h) { hashLock = true; history.replaceState(null, '', `${location.pathname}${location.search}#${h}`); hashLock = false; }
+    if (location.hash.slice(1) !== h) history.replaceState(null, '', `${location.pathname}${location.search}#${h}`);
   }
   function readHash() {
     const h = location.hash.slice(1);
-    if (h.startsWith('comunidad-') && byId(h.slice(10))) { S.detail = h.slice(10); S.tab = 'list'; }
-    else if (H2T[h]) { S.tab = H2T[h]; S.detail = null; }
+    if (h.startsWith('comunidad-') && byId(h.slice(10))) { S.detail = h.slice(10); S.tab = 'list'; return true; }
+    if (H2T[h]) { S.tab = H2T[h]; S.detail = null; return true; }
+    return false;
   }
-  window.addEventListener('hashchange', () => { if (!hashLock) { readHash(); render(); } });
+  window.addEventListener('popstate', () => {
+    if (location.hash === '#mapa') { if (!S.mapOpen) openMap(); return; }
+    if (S.mapOpen) { hideMap(); }
+    if (readHash()) render();
+  });
 
   function goTab(tab) { S.tab = tab; S.detail = null; render(); }
-  function openDetail(id) {
-    S.detail = id; S.sel = id; render();
-    if (isDesk() && map) selectCommunity(id);
-  }
 
   /* ---------------- eventos ---------------- */
   document.addEventListener('click', e => {
     const el = e.target.closest('button, a'); if (!el) return;
     const d = el.dataset;
-    if (d.lang) { S.lang = d.lang; store.set('illay.lang', S.lang); refreshMapLabels(); render(true); return; }
-    if (d.tab) { if (!sheet.hidden) sheetClose(); goTab(d.tab); return; }
+    if (d.lang) { S.lang = d.lang; store.set('illay.lang', S.lang); render(true); renderPeek(); return; }
+    if (d.tab) { if (!sheet.hidden) sheetClose(); if (S.mapOpen) { hideMap(); } goTab(d.tab); return; }
     if (d.layer) { setLayer(d.layer); return; }
-    if (d.open) { openDetail(d.open); return; }
+    if (d.open) { if (S.mapOpen) hideMap(); S.detail = d.open; render(); return; }
     if (d.back !== undefined) { S.detail = null; render(); return; }
-    if (d.fly) { selectCommunity(d.fly); return; }
-    if (d.showmap) { S.detail = null; S.tab = 'map'; render(); setTimeout(() => selectCommunity(d.showmap), 50); return; }
+    if (d.showmap) { openMap(d.showmap); return; }
     if (d.request) { openRequest(d.request); return; }
     if (d.speak) { speak(d.speak, el.dataset.text); return; }
     if (d.legend) { S.openLegend[d.legend] = !S.openLegend[d.legend]; render(true); return; }
     if (d.code) { S.treeCode = d.code; S.treeError = false; store.set('illay.tree', S.treeCode); render(); return; }
-    if (d.act === 'closepeek') { S.sel = null; renderPeek(); markActive(); return; }
-    if (d.act === 'closesheet') { sheetClose(); return; }
-    if (d.act === 'about') { openAbout(); return; }
-    if (d.act === 'logout') { S.treeCode = ''; S.treeError = false; store.set('illay.tree', ''); render(); return; }
+    switch (d.act) {
+      case 'explore': { const s = document.getElementById('secMap'); if (s) s.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+      case 'openmap': openMap(); return;
+      case 'closemap': closeMap(); return;
+      case 'closepeek': S.sel = null; renderPeek(); markActive(); return;
+      case 'closesheet': sheetClose(); return;
+      case 'about': openAbout(); return;
+      case 'logout': S.treeCode = ''; S.treeError = false; store.set('illay.tree', ''); render(); return;
+    }
   });
   document.addEventListener('submit', e => {
     const f = e.target; e.preventDefault();
@@ -437,14 +460,14 @@
     if (f.dataset.form === 'req') submitRequest(f);
   });
   sheet.addEventListener('click', e => { if (e.target === sheet) sheetClose(); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !sheet.hidden) sheetClose(); });
-  window.matchMedia('(min-width:980px)').addEventListener('change', () => render(true));
-
-  function refreshMapLabels() { if (cluster) cluster.refreshClusters(); }
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    if (!sheet.hidden) sheetClose(); else if (S.mapOpen) closeMap();
+  });
 
   /* ---------------- inicio ---------------- */
+  if (location.hash === '#mapa') history.replaceState(null, '', `${location.pathname}${location.search}#inicio`);
   if (params.get('arbol')) { S.tab = 'tree'; S.treeError = !D.arboles[S.treeCode]; }
   else readHash();
-  try { initMap(); } catch (err) { console.error('No se pudo cargar el mapa', err); }
   render();
 })();
