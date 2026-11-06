@@ -1,11 +1,11 @@
 /* =====================================================================
-   ILLAY · Lógica de la web
+   UWATA · Lógica de la web
    ===================================================================== */
 (function () {
   'use strict';
 
-  const D = window.ILLAY;
-  const TT = window.ILLAY_T;
+  const D = window.UWATA;
+  const TT = window.UWATA_T;
 
   /* ---------------- utilidades ---------------- */
   const store = {
@@ -25,9 +25,9 @@
   /* ---------------- estado ---------------- */
   const params = new URLSearchParams(location.search);
   const S = {
-    lang: store.get('illay.lang', 'es'),
+    lang: store.get('uwata.lang', 'es'),
     tab: 'home', detail: null, sel: null, layer: 'map', mapOpen: false,
-    treeCode: (params.get('arbol') || store.get('illay.tree', '') || '').toUpperCase(),
+    treeCode: (params.get('arbol') || store.get('uwata.tree', '') || '').toUpperCase(),
     treeError: false, openLegend: {}
   };
   if (!TT[S.lang]) S.lang = 'es';
@@ -237,7 +237,7 @@
     </article>`;
   }
   const lockedRow = (icon, title, sub) => `<div class="locked"><span class="lk">${icon}</span><span><b>${title}</b><small>${sub}</small></span><span class="tag">${t('soon')}</span></div>`;
-  const footer = (about) => `<footer class="foot">Illay · Loreto, Perú${about ? ` · <button class="linkish" data-act="about">${t('about')}</button>` : ''}</footer>`;
+  const footer = (about) => `<footer class="foot"><img class="brand" src="img/logo-uwata.png" alt="Uwata" width="96" height="111">Uwata Perú · Loreto${about ? ` · <button class="linkish" data-act="about">${t('about')}</button>` : ''}</footer>`;
 
   /* ---------------- vistas ---------------- */
   function vHome() {
@@ -372,7 +372,7 @@
     window.open(waLink(t('waVisit')({ com: c.nombre, date, people: form.querySelector('#rq-people').value, exp: L(e.n), tree: form.querySelector('#rq-tree').checked, name })), '_blank', 'noopener');
   }
   function openAbout() {
-    sheetOpen(`<h2 style="font-size:26px;color:var(--selva)">${t('aboutTitle')}</h2><p style="margin-top:8px">${t('aboutTx')}</p><p class="note" style="margin-top:12px">${t('aboutNote')}</p><button class="btn block" data-act="closesheet" style="margin-top:16px">${t('close')}</button>`);
+    sheetOpen(`<img class="about-logo" src="img/logo-uwata.png" alt="Uwata" width="120" height="139"><h2 style="font-size:26px;color:var(--selva)">${t('aboutTitle')}</h2><p style="margin-top:8px">${t('aboutTx')}</p><p class="note" style="margin-top:12px">${t('aboutNote')}</p><button class="btn block" data-act="closesheet" style="margin-top:16px">${t('close')}</button>`);
   }
 
   /* ---------------- render ---------------- */
@@ -397,7 +397,7 @@
     panel.scrollTop = keepScroll ? y : 0;
     if (!S.detail && S.tab === 'home') {
       const cv = document.getElementById('heroCanvas');
-      if (cv && window.IllayHero) { try { hero = window.IllayHero(cv); } catch (e) { console.error(e); } }
+      if (cv && window.UwataHero) { try { hero = window.UwataHero(cv); } catch (e) { console.error(e); } }
       try { initPreview(); } catch (e) { console.error('mapa', e); }
     }
     if (full && fullM) fullM.cluster.refreshClusters();
@@ -429,7 +429,7 @@
   document.addEventListener('click', e => {
     const el = e.target.closest('button, a'); if (!el) return;
     const d = el.dataset;
-    if (d.lang) { S.lang = d.lang; store.set('illay.lang', S.lang); render(true); renderPeek(); return; }
+    if (d.lang) { S.lang = d.lang; store.set('uwata.lang', S.lang); render(true); renderPeek(); return; }
     if (d.tab) { if (!sheet.hidden) sheetClose(); if (S.mapOpen) { hideMap(); } goTab(d.tab); return; }
     if (d.layer) { setLayer(d.layer); return; }
     if (d.open) { if (S.mapOpen) hideMap(); S.detail = d.open; render(); return; }
@@ -438,7 +438,7 @@
     if (d.request) { openRequest(d.request); return; }
     if (d.speak) { speak(d.speak, el.dataset.text); return; }
     if (d.legend) { S.openLegend[d.legend] = !S.openLegend[d.legend]; render(true); return; }
-    if (d.code) { S.treeCode = d.code; S.treeError = false; store.set('illay.tree', S.treeCode); render(); return; }
+    if (d.code) { S.treeCode = d.code; S.treeError = false; store.set('uwata.tree', S.treeCode); render(); return; }
     switch (d.act) {
       case 'explore': { const s = document.getElementById('secMap'); if (s) s.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
       case 'openmap': openMap(); return;
@@ -446,7 +446,7 @@
       case 'closepeek': S.sel = null; renderPeek(); markActive(); return;
       case 'closesheet': sheetClose(); return;
       case 'about': openAbout(); return;
-      case 'logout': S.treeCode = ''; S.treeError = false; store.set('illay.tree', ''); render(); return;
+      case 'logout': S.treeCode = ''; S.treeError = false; store.set('uwata.tree', ''); render(); return;
     }
   });
   document.addEventListener('submit', e => {
@@ -454,7 +454,7 @@
     if (f.dataset.form === 'code') {
       const v = f.querySelector('#code').value.trim().toUpperCase();
       S.treeCode = v; S.treeError = !D.arboles[v];
-      store.set('illay.tree', S.treeError ? '' : v);
+      store.set('uwata.tree', S.treeError ? '' : v);
       render(); return;
     }
     if (f.dataset.form === 'req') submitRequest(f);

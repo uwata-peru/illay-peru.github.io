@@ -1,10 +1,10 @@
-# Illay 🌿
+# Uwata 🌿
 
 Web (y futura app) de **turismo comunitario en las comunidades ribereñas de Loreto, Perú**.
 
 El viajero descubre las comunidades en un mapa, solicita su visita por WhatsApp, siembra un árbol durante el viaje y, desde su país, sigue viéndolo crecer con su código QR.
 
-👉 **Web:** https://illay-peru.github.io
+👉 **Web:** https://uwata-peru.github.io
 
 > ⚠️ Las comunidades marcadas como "ejemplo", los precios, los cuidadores y el número de WhatsApp son datos de ejemplo. Las ilustraciones reemplazan a las fotos reales.
 
@@ -14,7 +14,7 @@ El viajero descubre las comunidades en un mapa, solicita su visita por WhatsApp,
 - **Mapa real** (vista clara y satélite) enfocado en Loreto. En la portada se ve en un recuadro; con "Ver mapa completo" se abre para moverlo. Alejado, las comunidades se agrupan; al acercar, se separan con su imagen.
 - **Ficha de cada comunidad:** cómo es, por qué ir, distancia desde Iquitos, cómo llegar, experiencias y solicitud de visita por WhatsApp.
 - **Leyendas:** una leyenda gratis por comunidad (texto y audio). La colección completa y el libro impreso aparecen como "Próximamente".
-- **Mi árbol:** el padrino o madrina entra con el código de su árbol (por ejemplo `ILLAY-0001`), ve sus novedades y su código QR, que abre WhatsApp con un mensaje listo.
+- **Mi árbol:** el padrino o madrina entra con el código de su árbol (por ejemplo `UWATA-0001`), ve sus novedades y su código QR, que abre WhatsApp con un mensaje listo.
 - **Idiomas:** español, inglés y francés.
 
 ## Cómo editar los datos

@@ -1,9 +1,9 @@
 /* =====================================================================
-   ILLAY · Animación de bienvenida
+   UWATA · Animación de bienvenida
    Atardecer sobre el río: cielo, sol, selva en silueta, reflejos en el
    agua, luciérnagas, aves y un bufeo colorado que salta de vez en cuando.
    ===================================================================== */
-window.IllayHero = function (canvas) {
+window.UwataHero = function (canvas) {
   'use strict';
   const ctx = canvas.getContext('2d');
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;

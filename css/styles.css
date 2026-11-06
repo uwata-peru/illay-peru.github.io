@@ -1,5 +1,5 @@
 /* =====================================================================
-   ILLAY · Estilos
+   UWATA · Estilos
    Atardecer en el río: verde selva profundo, agua café con leche, cielo
    violeta-naranja y el rosado del bufeo colorado como acento.
    Layout: página de bienvenida con secciones; en celular, pestañas abajo;
@@ -297,3 +297,18 @@ body[data-peek="1"] .fullmap .leaflet-top.leaflet-left{display:none}
 .grid2 > div{min-width:0}
 input[type="date"].in{-webkit-appearance:none;appearance:none;display:block;min-width:0;max-width:100%;min-height:50px;text-align:left}
 input[type="date"].in::-webkit-date-and-time-value{text-align:left}
+
+/* ---------- marca Uwata: cabecera clara para que luzca el logo verde ---------- */
+.top{background:var(--papel);color:var(--selva);border-bottom:1px solid var(--linea)}
+.logo{gap:6px}
+.logo-pin{height:40px;width:auto;display:block}
+.logo-word{height:28px;width:auto;display:block;margin-top:6px}
+.langs{background:#eef2ea}
+.langs button{color:var(--gris)}
+.langs button[aria-pressed="true"]{background:var(--selva);color:#fff}
+@media (min-width:900px){
+  .tabs button{color:var(--gris)}
+  .tabs button[aria-current="page"]{color:var(--selva);background:#e6efe0}
+}
+.foot .brand{display:block;width:96px;height:auto;margin:0 auto 10px}
+.about-logo{display:block;width:120px;height:auto;margin:0 auto 12px}

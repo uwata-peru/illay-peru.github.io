@@ -1,13 +1,13 @@
 /* =====================================================================
-   ILLAY · DATOS DE LA WEB
+   UWATA · DATOS DE LA WEB
    Aquí se editan las comunidades, leyendas, árboles y precios.
    Lo marcado con  ejemplo: true  son datos de ejemplo que el equipo
    debe reemplazar con datos reales.
    ===================================================================== */
-window.ILLAY = {
+window.UWATA = {
 
   config: {
-    // Número de WhatsApp de Illay, con código de país y sin "+" ni espacios.
+    // Número de WhatsApp de Uwata, con código de país y sin "+" ni espacios.
     // ⚠️ Número DE EJEMPLO: cámbialo por el real y pon whatsappEsEjemplo: false
     whatsapp: '51999999999',
     whatsappEsEjemplo: true,
@@ -234,7 +234,7 @@ window.ILLAY = {
      diasDesdeSiembra: solo para el ejemplo (calcula la fecha sola).
      ------------------------------------------------------------------- */
   arboles: {
-    'ILLAY-0001': {
+    'UWATA-0001': {
       ejemplo: true,
       nombre: 'Esperanza',
       especie: 'camu',

@@ -1,5 +1,5 @@
-/* ILLAY · Textos de la interfaz en español (principal), inglés y francés */
-window.ILLAY_T = {
+/* UWATA · Textos de la interfaz en español (principal), inglés y francés */
+window.UWATA_T = {
   es: {
     tabHome: 'Inicio', tabList: 'Comunidades', tabLegends: 'Leyendas', tabTree: 'Mi árbol',
     login: 'Ingresar',
@@ -27,7 +27,7 @@ window.ILLAY_T = {
     voiceNote: 'Voz de prueba: la final será la de un abuelo o abuela del pueblo.',
     free: 'Gratis',
     fullCollection: 'Todas las leyendas', fullCollectionTx: 'Audio y libro digital',
-    printedBook: 'Libro impreso Illay', printedBookTx: 'Las leyendas del río, en papel',
+    printedBook: 'Libro impreso Uwata', printedBookTx: 'Las leyendas del río, en papel',
     soon: 'Próximamente',
     legendsTitle: 'Leyendas del río', legendsSub: 'Una leyenda gratis por pueblo, contada por sus mayores.',
     seeMore: 'Ver más', seeLess: 'Ver menos',
@@ -37,7 +37,7 @@ window.ILLAY_T = {
     waExample: 'Número de WhatsApp de ejemplo: todavía no llega a nadie.',
     needReq: 'Escribe tu nombre y elige una fecha.',
     treeTitle: 'Mi árbol', treeSub: '¿Ya sembraste tu árbol? Ingresa el código de tu tarjeta.',
-    codeLabel: 'Código de tu árbol', codePh: 'ILLAY-0000', see2: 'Ver mi árbol',
+    codeLabel: 'Código de tu árbol', codePh: 'UWATA-0000', see2: 'Ver mi árbol',
     tryCode: 'Prueba con', notFound: 'No encontramos ese código. Revisa tu tarjeta.',
     how1: 'Visitas un pueblo', how2: 'Siembras tu árbol', how3: 'Lo ves crecer',
     how1t: 'Viajas por el río y conoces a las familias.', how2t: 'Con tus manos, junto a un comunero. Le pones nombre.', how3t: 'Cada mes, foto y audio por WhatsApp.',
@@ -51,13 +51,13 @@ window.ILLAY_T = {
     audioMsg: 'Audio de', heightCm: 'cm',
     qrTitle: 'El QR de tu árbol', qrTx: 'Va en la plaquita de tu árbol. Al escanearlo se abre WhatsApp con un mensaje listo.',
     openWa: 'WhatsApp', seeOnMap: 'Ver en el mapa', logout: 'Salir',
-    waTree: (code, name) => `Hola Illay 🌱 Soy padrino/madrina del árbol ${code} (${name}). Quiero recibir sus novedades.`,
-    waVisit: (o) => `Hola Illay 🌿 Quiero visitar ${o.com}.\n• Fecha: ${o.date}\n• Personas: ${o.people}\n• Experiencia: ${o.exp}\n• Sembrar árbol: ${o.tree ? 'Sí' : 'No'}\nMi nombre es ${o.name}.`,
+    waTree: (code, name) => `Hola Uwata 🌱 Soy padrino/madrina del árbol ${code} (${name}). Quiero recibir sus novedades.`,
+    waVisit: (o) => `Hola Uwata 🌿 Quiero visitar ${o.com}.\n• Fecha: ${o.date}\n• Personas: ${o.people}\n• Experiencia: ${o.exp}\n• Sembrar árbol: ${o.tree ? 'Sí' : 'No'}\nMi nombre es ${o.name}.`,
     careVoice: (n, h) => `Hola, te saluda quien cuida a ${n}. Este mes la regamos, limpiamos alrededor y ya mide ${h} centímetros. Un abrazo desde la Amazonía.`,
-    aboutTitle: 'Sobre Illay',
-    aboutTx: 'Illay conecta a viajeros con los pueblos ribereños de Loreto, Perú: visitas una comunidad, siembras un árbol y lo sigues viendo crecer desde tu país.',
+    aboutTitle: 'Sobre Uwata',
+    aboutTx: 'Uwata conecta a viajeros con los pueblos ribereños de Loreto, Perú: visitas una comunidad, siembras un árbol y lo sigues viendo crecer desde tu país.',
     aboutNote: 'Las comunidades marcadas como “ejemplo”, los precios y el número de WhatsApp son de ejemplo. Las ilustraciones reemplazan a las fotos reales.',
-    about: 'Sobre Illay'
+    about: 'Sobre Uwata'
   },
 
   en: {
@@ -87,7 +87,7 @@ window.ILLAY_T = {
     voiceNote: 'Test voice: the final one will be an elder from the village.',
     free: 'Free',
     fullCollection: 'All the legends', fullCollectionTx: 'Audio and e-book',
-    printedBook: 'Illay printed book', printedBookTx: 'River legends, on paper',
+    printedBook: 'Uwata printed book', printedBookTx: 'River legends, on paper',
     soon: 'Coming soon',
     legendsTitle: 'River legends', legendsSub: 'One free legend per village, told by its elders.',
     seeMore: 'See more', seeLess: 'See less',
@@ -97,7 +97,7 @@ window.ILLAY_T = {
     waExample: 'Sample WhatsApp number: it does not reach anyone yet.',
     needReq: 'Enter your name and pick a date.',
     treeTitle: 'My tree', treeSub: 'Already planted your tree? Enter the code on your card.',
-    codeLabel: 'Your tree code', codePh: 'ILLAY-0000', see2: 'See my tree',
+    codeLabel: 'Your tree code', codePh: 'UWATA-0000', see2: 'See my tree',
     tryCode: 'Try', notFound: 'We could not find that code. Check your card.',
     how1: 'Visit a village', how2: 'Plant your tree', how3: 'Watch it grow',
     how1t: 'Travel the river and meet the families.', how2t: 'With your own hands, with a local. You name it.', how3t: 'Every month, a photo and an audio on WhatsApp.',
@@ -111,13 +111,13 @@ window.ILLAY_T = {
     audioMsg: 'Audio from', heightCm: 'cm',
     qrTitle: 'Your tree’s QR', qrTx: 'It goes on your tree’s tag. Scanning it opens WhatsApp with a message ready.',
     openWa: 'WhatsApp', seeOnMap: 'See on the map', logout: 'Sign out',
-    waTree: (code, name) => `Hello Illay 🌱 I am the godparent of tree ${code} (${name}). I would like to receive its updates.`,
-    waVisit: (o) => `Hello Illay 🌿 I would like to visit ${o.com}.\n• Date: ${o.date}\n• People: ${o.people}\n• Experience: ${o.exp}\n• Plant a tree: ${o.tree ? 'Yes' : 'No'}\nMy name is ${o.name}.`,
+    waTree: (code, name) => `Hello Uwata 🌱 I am the godparent of tree ${code} (${name}). I would like to receive its updates.`,
+    waVisit: (o) => `Hello Uwata 🌿 I would like to visit ${o.com}.\n• Date: ${o.date}\n• People: ${o.people}\n• Experience: ${o.exp}\n• Plant a tree: ${o.tree ? 'Yes' : 'No'}\nMy name is ${o.name}.`,
     careVoice: (n, h) => `Hello, this is the person who looks after ${n}. This month we watered it, cleared around it and it is now ${h} centimeters tall. Warm wishes from the Amazon.`,
-    aboutTitle: 'About Illay',
-    aboutTx: 'Illay connects travelers with the riverside villages of Loreto, Peru: visit a community, plant a tree and keep watching it grow from home.',
+    aboutTitle: 'About Uwata',
+    aboutTx: 'Uwata connects travelers with the riverside villages of Loreto, Peru: visit a community, plant a tree and keep watching it grow from home.',
     aboutNote: 'Communities marked “example”, prices and the WhatsApp number are samples. Illustrations stand in for real photos.',
-    about: 'About Illay'
+    about: 'About Uwata'
   },
 
   fr: {
@@ -147,7 +147,7 @@ window.ILLAY_T = {
     voiceNote: 'Voix de test : la version finale sera celle d’un ancien du village.',
     free: 'Gratuit',
     fullCollection: 'Toutes les légendes', fullCollectionTx: 'Audio et livre numérique',
-    printedBook: 'Livre imprimé Illay', printedBookTx: 'Les légendes du fleuve, sur papier',
+    printedBook: 'Livre imprimé Uwata', printedBookTx: 'Les légendes du fleuve, sur papier',
     soon: 'Bientôt',
     legendsTitle: 'Légendes du fleuve', legendsSub: 'Une légende gratuite par village, racontée par ses anciens.',
     seeMore: 'Voir plus', seeLess: 'Voir moins',
@@ -157,7 +157,7 @@ window.ILLAY_T = {
     waExample: 'Numéro WhatsApp d’exemple : il n’arrive encore à personne.',
     needReq: 'Indiquez votre nom et choisissez une date.',
     treeTitle: 'Mon arbre', treeSub: 'Vous avez planté votre arbre ? Saisissez le code de votre carte.',
-    codeLabel: 'Code de votre arbre', codePh: 'ILLAY-0000', see2: 'Voir mon arbre',
+    codeLabel: 'Code de votre arbre', codePh: 'UWATA-0000', see2: 'Voir mon arbre',
     tryCode: 'Essayez', notFound: 'Nous ne trouvons pas ce code. Vérifiez votre carte.',
     how1: 'Vous visitez un village', how2: 'Vous plantez votre arbre', how3: 'Vous le voyez grandir',
     how1t: 'Vous voyagez sur le fleuve et rencontrez les familles.', how2t: 'De vos mains, avec un habitant. Vous lui donnez un nom.', how3t: 'Chaque mois, une photo et un audio sur WhatsApp.',
@@ -171,11 +171,11 @@ window.ILLAY_T = {
     audioMsg: 'Audio de', heightCm: 'cm',
     qrTitle: 'Le QR de votre arbre', qrTx: 'Il figure sur la plaque de votre arbre. En le scannant, WhatsApp s’ouvre avec un message prêt.',
     openWa: 'WhatsApp', seeOnMap: 'Voir sur la carte', logout: 'Se déconnecter',
-    waTree: (code, name) => `Bonjour Illay 🌱 Je suis parrain/marraine de l’arbre ${code} (${name}). Je souhaite recevoir ses nouvelles.`,
-    waVisit: (o) => `Bonjour Illay 🌿 Je souhaite visiter ${o.com}.\n• Date : ${o.date}\n• Personnes : ${o.people}\n• Expérience : ${o.exp}\n• Planter un arbre : ${o.tree ? 'Oui' : 'Non'}\nJe m’appelle ${o.name}.`,
+    waTree: (code, name) => `Bonjour Uwata 🌱 Je suis parrain/marraine de l’arbre ${code} (${name}). Je souhaite recevoir ses nouvelles.`,
+    waVisit: (o) => `Bonjour Uwata 🌿 Je souhaite visiter ${o.com}.\n• Date : ${o.date}\n• Personnes : ${o.people}\n• Expérience : ${o.exp}\n• Planter un arbre : ${o.tree ? 'Oui' : 'Non'}\nJe m’appelle ${o.name}.`,
     careVoice: (n, h) => `Bonjour, c’est la personne qui prend soin de ${n}. Ce mois-ci, nous l’avons arrosé, nous avons désherbé autour et il mesure maintenant ${h} centimètres. Nous vous embrassons depuis l’Amazonie.`,
-    aboutTitle: 'À propos d’Illay',
-    aboutTx: 'Illay relie les voyageurs aux villages riverains du Loreto, au Pérou : vous visitez une communauté, plantez un arbre et continuez à le voir grandir depuis chez vous.',
+    aboutTitle: 'À propos d’Uwata',
+    aboutTx: 'Uwata relie les voyageurs aux villages riverains du Loreto, au Pérou : vous visitez une communauté, plantez un arbre et continuez à le voir grandir depuis chez vous.',
     aboutNote: 'Les communautés marquées « exemple », les prix et le numéro WhatsApp sont des exemples. Les illustrations remplacent les vraies photos.',
     about: 'À propos'
   }
