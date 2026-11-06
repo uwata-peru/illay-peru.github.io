@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Illay · Amazonía ribereña</title>
+<meta name="description" content="Conoce las comunidades ribereñas de Loreto, Perú, siembra un árbol durante tu visita y síguelo creciendo desde tu país.">
+<meta name="theme-color" content="#0e3a2b">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M4 22c6-2 9-8 12-8s6 6 12 8' fill='none' stroke='%23c4965a' stroke-width='3.2' stroke-linecap='round'/%3E%3Cpath d='M16 4c4 3 5 7 0 11-5-4-4-8 0-11z' fill='%23cf3d69'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+<link rel="stylesheet" href="vendor/markercluster/MarkerCluster.css">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-view="map">
+<div class="shell">
+  <header class="top">
+    <div class="row" style="gap:10px">
+      <button class="logo" data-tab="map" aria-label="Illay, inicio">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 22c6-2 9-8 12-8s6 6 12 8" fill="none" stroke="#c4965a" stroke-width="3.2" stroke-linecap="round"/><path d="M16 4c4 3 5 7 0 11-5-4-4-8 0-11z" fill="#cf3d69"/></svg>
+        illay
+      </button>
+      <button class="proto" data-act="about" id="protoBtn">Prototipo</button>
+    </div>
+    <div class="top-r">
+      <div class="langs" role="group" aria-label="Idioma / Language">
+        <button data-lang="es">ES</button><button data-lang="en">EN</button><button data-lang="fr">FR</button>
+      </div>
+      <button class="login" data-tab="tree" id="loginBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21v-9"/><path d="M12 12c0-4 3-7 8-7 0 5-3 8-8 7z"/><path d="M12 14c0-3-2-5-7-5 0 4 3 6 7 5z"/></svg>
+        <span id="loginTx">Ingresar</span>
+      </button>
+    </div>
+  </header>
+
+  <main id="panel" tabindex="-1"></main>
+
+  <div class="mapwrap">
+    <div id="map" aria-label="Mapa de comunidades"></div>
+    <div class="map-head">
+      <div class="ttl map-only"><h1 id="mapTitle"></h1><p id="mapSub"></p></div>
+      <div class="layers" role="group" aria-label="Capas">
+        <button data-layer="map" aria-pressed="true" id="lyMap">Mapa</button>
+        <button data-layer="sat" aria-pressed="false" id="lySat">Satélite</button>
+      </div>
+    </div>
+    <div class="peek" id="peek" hidden></div>
+  </div>
+
+  <nav class="tabs" id="tabs" aria-label="Secciones"></nav>
+</div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" hidden></div>
+
+<script src="vendor/leaflet/leaflet.js"></script>
+<script src="vendor/markercluster/leaflet.markercluster.js"></script>
+<script src="vendor/qrcode/qrcode.js"></script>
+<script src="js/data.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
